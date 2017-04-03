@@ -1,0 +1,117 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.himanshu.navigationdrawer.fragment.WifiLatencyFragment">
+
+    <!--<ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:alpha="0.3"
+        android:src="@drawable/ic_notifications_black_24dp" />
+        -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/head"
+        android:paddingTop="16dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/options"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/time_out_tv"
+                    android:layout_width="150dp"
+                    android:layout_height="40dp"
+                    android:text="Time Out(ms) :"
+                    android:textSize="18sp"
+                    android:gravity="center_vertical"
+                    android:textStyle="bold"
+                    />
+                <EditText
+                    android:id="@+id/time_out_et"
+                    android:layout_width="100dp"
+                    android:layout_height="40dp"
+                    android:inputType="number"
+                    android:gravity="center_vertical"
+                    android:imeOptions="actionNext"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/retry_tv"
+                    android:layout_width="150dp"
+                    android:layout_height="40dp"
+                    android:text="Retries Count :"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+                <EditText
+                    android:id="@+id/retry_et"
+                    android:layout_width="100dp"
+                    android:layout_height="40dp"
+                    android:inputType="number"
+                    android:gravity="center_vertical"/>
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+
+            <Button
+                android:id="@+id/check_button_latency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:onClick="latency"
+                android:text="WIFI Latency"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/output1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/check_button_latency"
+                android:layout_centerHorizontal="true"
+                android:hint="O/P"
+                android:textAlignment="center"
+                android:textSize="20sp" />
+
+            <ProgressBar
+                android:id="@+id/progressBar1"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_below="@id/check_button_latency"
+                android:layout_toRightOf="@id/check_button_latency"
+                android:gravity="center"
+                android:visibility="invisible"
+                />
+        </RelativeLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/output"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </ScrollView>
+
+    </LinearLayout>
+
+</FrameLayout>
