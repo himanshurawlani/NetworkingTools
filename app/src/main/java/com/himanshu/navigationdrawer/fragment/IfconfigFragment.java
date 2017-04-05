@@ -9,6 +9,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.himanshu.navigationdrawer.R;
+
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -142,18 +150,111 @@ public class IfconfigFragment extends Fragment {
 
     private void runcommand()
     {
+        String result = getNetworkClass(getActivity().getApplicationContext());
+        txt1.setText("Connection Type : " + result);
         wifii= (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         d=wifii.getDhcpInfo();
+        try {
+            InetAddress inetAddress = GetDeviceipMobileData();
+            NetworkInterface networkInterface = GetDeviceInterfaceMobileData();
 
-        txt1.setText("Connection Type : "+getNetworkClass(getActivity().getApplicationContext()));
-        txt2.setText("IP Address : " + intToIp(d.ipAddress));
-        txt3.setText("Subnet Mask : " + intToIp(d.netmask));
-        txt4.setText("Gateway : "+ intToIp(d.gateway));
-        txt5.setText("DNS Server 1 : " + intToIp(d.dns1));
-        txt6.setText("DNS Server 2 : " + intToIp(d.dns2));
-        txt7.setText("Lease Time : "+d.leaseDuration + " seconds");
-        txt8.setText("Mac Address : " + wifii.getConnectionInfo().getMacAddress());
+            if (result.equals("WIFI")) {
+
+                txt2.setText("IP Address :       " + intToIp(d.ipAddress));
+                txt3.setText("Subnet Mask :   " + intToIp(d.netmask));
+                txt4.setText("Gateway :           " + intToIp(d.gateway));
+                txt5.setText("DNS Server 1 :   " + intToIp(d.dns1));
+                txt6.setText("MTU :                  " + networkInterface.getMTU());
+                txt7.setText("Lease Time :      " + d.leaseDuration + " seconds");
+                txt8.setText("Mac Address :   " + getMacAddress("wlan0"));
+            } else {
+
+                txt2.setText("Interface name : " + networkInterface.getDisplayName());
+                txt3.setText("IP Address :        " + inetAddress.getHostAddress().toString());
+                txt4.setText("Gateway :            " + intToIp(d.gateway));
+                txt5.setText("DNS Server 1 :    " + intToIp(d.dns1));
+                txt6.setText("MTU :                   " + networkInterface.getMTU());
+                txt7.setText("Lease Time :       " + d.leaseDuration + " seconds");
+                txt8.setText("Mac Address :    " + getMacAddress("wlan0"));
+            }
+        }catch (Exception e) {
+            Log.e("IfconfigFragment.java: ", String.valueOf(e));
+        }
+
     }
+
+    public String getMacAddress(String interfaceName)
+    {
+        try {
+            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface intf : interfaces) {
+                if (interfaceName != null) {
+                    Log.v("IfconfigFragment(intf) ", intf.getName());
+                    /*
+                    for(Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();)
+                    {
+                        InetAddress inetAddress = enumIpAddr.nextElement();
+                        if (!inetAddress.isLoopbackAddress()) {
+                            Log.v("IfconfigFragment(HA) ",inetAddress.getHostAddress().toString());
+                        }
+                    }
+                    */
+                    if (!intf.getName().equalsIgnoreCase(interfaceName)) {
+                        continue;
+                    }
+                }
+                byte[] mac = intf.getHardwareAddress();
+                if (mac==null) return "";
+                StringBuilder buf = new StringBuilder();
+                for (int idx=0; idx<mac.length; idx++)
+                    buf.append(String.format("%02X:", mac[idx]));
+                if (buf.length()>0) buf.deleteCharAt(buf.length()-1);
+                return buf.toString();
+            }
+        } catch (Exception ex) {
+            Log.v("IfconfigFragment:", String.valueOf(ex));
+        } // for now eat exceptions
+        return "";
+    }
+
+    public NetworkInterface GetDeviceInterfaceMobileData(){
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();)
+            {
+                NetworkInterface networkinterface = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = networkinterface.getInetAddresses(); enumIpAddr.hasMoreElements();)
+                {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress() && !inetAddress.getHostAddress().toString().contains("dummy0")) {
+                        return networkinterface;
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            Log.e("Current IP", ex.toString());
+        }
+        return null;
+    }
+
+    public InetAddress GetDeviceipMobileData(){
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();)
+            {
+                NetworkInterface networkinterface = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = networkinterface.getInetAddresses(); enumIpAddr.hasMoreElements();)
+                {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress() && !inetAddress.getHostAddress().toString().contains("dummy0")) {
+                        return inetAddress;
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            Log.e("Current IP", ex.toString());
+        }
+        return null;
+    }
+
 
     private String intToIp(int addr) {
         return  ((addr & 0xFF) + "." +
@@ -166,7 +267,7 @@ public class IfconfigFragment extends Fragment {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = cm.getActiveNetworkInfo();
         if(info==null || !info.isConnected())
-            return "-"; //not connected
+            return "not connected"; //not connected
         if(info.getType() == ConnectivityManager.TYPE_WIFI)
             return "WIFI";
         if(info.getType() == ConnectivityManager.TYPE_MOBILE){

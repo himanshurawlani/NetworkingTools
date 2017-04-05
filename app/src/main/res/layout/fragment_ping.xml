@@ -12,6 +12,9 @@
         android:alpha="0.3"
         android:src="@drawable/ic_home_black_24dp" />
         -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <LinearLayout
         android:id="@+id/head"
         android:layout_width="match_parent"
@@ -211,4 +214,5 @@
 
 
     </LinearLayout>
+    </ScrollView>
 </FrameLayout>
